@@ -14,18 +14,56 @@ namespace PokemonReviewApp.Controllers
             _pokemonRepository = pokemonRepository;
         }
 
-        [HttpGet]
+        [HttpGet("GetPokemons")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Pokemon>))]
 
         public IActionResult GetPokemons()
         {
             var pokemons = _pokemonRepository.GetPokemons();
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
             return Ok(pokemons);
+        }
+
+        [HttpGet("{pokeId}/GetPokemonByID")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Pokemon>))]
+        [ProducesResponseType(400)]
+
+        public IActionResult GetPokemonByID (int pokeId) 
+        {
+            if (!_pokemonRepository.PokemonExists(pokeId))
+                return NotFound();
+
+            var pokemon = _pokemonRepository.GetPokemon(pokeId);
+
+            if (ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            return Ok(pokemon);
+        }
+
+        [HttpGet("{pokeId}/GetRating")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Pokemon>))]
+        [ProducesResponseType(400)]
+
+        public IActionResult GetPokemonRating(int pokeId)
+        {
+            if (!_pokemonRepository.PokemonExists(pokeId)) 
+                return NotFound();
+
+            var rating = _pokemonRepository.GetPokemonRating(pokeId);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); 
+            }
+
+            return Ok(rating);
         }
 
     }
