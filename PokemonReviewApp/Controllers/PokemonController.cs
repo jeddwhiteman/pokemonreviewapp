@@ -29,7 +29,7 @@ namespace PokemonReviewApp.Controllers
         }
 
         [HttpGet("{pokeId}/GetPokemonByID")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Pokemon>))]
+        [ProducesResponseType(200, Type = typeof(Pokemon))]
         [ProducesResponseType(400)]
 
         public IActionResult GetPokemonByID (int pokeId) 
@@ -39,7 +39,7 @@ namespace PokemonReviewApp.Controllers
 
             var pokemon = _pokemonRepository.GetPokemon(pokeId);
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -48,7 +48,7 @@ namespace PokemonReviewApp.Controllers
         }
 
         [HttpGet("{pokeId}/GetRating")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Pokemon>))]
+        [ProducesResponseType(200, Type = typeof(decimal))]
         [ProducesResponseType(400)]
 
         public IActionResult GetPokemonRating(int pokeId)
