@@ -12,6 +12,27 @@ namespace PokemonReviewApp.Repository
         {
             _db = Db;
         }
+
+        public bool CreateOwner(int pokemonId, int countryId, Owner owner)
+        {
+            var pokemon = _db.Pokemons.Where(p => p.Id == pokemonId).FirstOrDefault();
+            var country = _db.Countries.Where(c => c.Id == countryId).FirstOrDefault();
+
+            owner.Country = country;
+
+            var pokemoneOwner = new PokemonOwner()
+            {
+                Owner = owner,
+                Pokemon = pokemon
+            };
+
+            _db.Add(pokemoneOwner);
+            _db.Add(owner);
+
+            return Saved();
+        
+        }
+
         public Owner GetOwner(int ownerId)
         {
             return _db.Owners.Where(o => o.Id == ownerId).FirstOrDefault();
@@ -35,6 +56,18 @@ namespace PokemonReviewApp.Repository
         public bool OwnerExists(int ownerId)
         {
             return _db.Owners.Any(o => o.Id == ownerId);
+        }
+
+        public bool Saved()
+        {
+            var saved = _db.SaveChanges();
+            return saved > 0 ? true : false;
+        }
+
+        public bool UpdateOwner(Owner owner)
+        {
+            _db.Update(owner);
+            return Saved();
         }
     }
 }

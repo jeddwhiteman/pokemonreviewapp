@@ -11,5 +11,8 @@ namespace PokemonReviewApp.Interfaces
 
         decimal GetPokemonAverageRatingByReviewerID(int reviewerID, int pokeId);
         bool PokemonExists (int id);
+
+        bool CreatePokemon(int ownerId, int categoryId, Pokemon pokemon);
+        bool Save();
     }
 }

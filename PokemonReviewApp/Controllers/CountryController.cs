@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PokemonReviewApp.DTO;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
+using PokemonReviewApp.Repository;
 
 namespace PokemonReviewApp.Controllers
 {
@@ -68,6 +69,81 @@ namespace PokemonReviewApp.Controllers
                 return BadRequest(ModelState);
             }
             return Ok(country);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+
+        public IActionResult CreateCountry([FromBody] CountryDTO countryCreate)
+        {
+            if (countryCreate == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var country = _countryRepository.GetCountries()
+                .Where(c => c.CountryName.Trim().ToUpper() == countryCreate.CountryName.TrimEnd().ToUpper())
+                .FirstOrDefault();
+
+            if (country != null)
+            {
+                ModelState.AddModelError("", "Country already exists!");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            
+            var countryMap = _mapper.Map<Country>(countryCreate);
+
+            if (!_countryRepository.CreateCountry(countryMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving.");
+                return StatusCode(500, ModelState);
+            }
+            return Ok("Country Added!");
+        }
+
+        [HttpPut("{countryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+
+        public IActionResult UpdateCountry (int countryId, [FromBody] CountryDTO countryAdded)
+        {
+            if (countryAdded == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (countryId != countryAdded.Id)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!_countryRepository.CountryExists(countryId))
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var countryMap = _mapper.Map<Country>(countryAdded);
+
+            if (!_countryRepository.UpdateCountry(countryMap))
+            {
+                ModelState.AddModelError("", "Something went wrong updating country.");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
         }
 
     }
